@@ -64,3 +64,28 @@ class User:
         """
         CURSOR.execute(sql)
         CONN.commit()
+
+    @classmethod
+    def create(cls, username, user_type):
+        file = cls(username, user_type)
+        file.save()
+
+    def save(self):
+        sql = """
+            INSERT INTO users (username, user_type)
+            VALUES (?,?)
+        """
+
+        CURSOR.execute(sql, (self.username, self.user_type))
+        CONN.commit()
+
+        self.id = CURSOR.lastrowid
+
+    def delete(self):
+        sql = """
+            DELETE FROM users
+            WHERE id = ?
+        """
+
+        CURSOR.execute(sql, (self.id,))
+        CONN.commit()

@@ -83,3 +83,28 @@ class File:
         """
         CURSOR.execute(sql)
         CONN.commit()
+
+    @classmethod
+    def create(cls, file_name, file_type, description, user_id):
+        file = cls(file_name, file_type, description, user_id)
+        file.save()
+
+    def save(self):
+        sql = """
+            INSERT INTO files (file_name, file_type, description, user_id)
+            VALUES (?,?,?,?)
+        """
+
+        CURSOR.execute(sql, (self.file_name, self.file_type, self.description, self.user_id))
+        CONN.commit()
+
+        self.id = CURSOR.lastrowid
+
+    def delete(self):
+        sql = """
+            DELETE FROM files
+            WHERE id = ?
+        """
+
+        CURSOR.execute(sql, (self.id,))
+        CONN.commit()
