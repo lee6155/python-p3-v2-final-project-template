@@ -1,6 +1,7 @@
 from models.__init__ import CONN, CURSOR
 
 class User:
+    all = {}
     usernames = []
 
     def __init__(self, username, user_type, id=None):
@@ -17,7 +18,7 @@ class User:
         return self._username
     
     @username.setter
-    def username (self, value):
+    def username(self, value):
         if type(value) != str:
             raise TypeError("Username must be a string")
         if len(value) < 3 or len(value) > 30:
@@ -80,6 +81,7 @@ class User:
         CONN.commit()
 
         self.id = CURSOR.lastrowid
+        User.all[self.id] = self
 
     def delete(self):
         sql = """
@@ -89,3 +91,38 @@ class User:
 
         CURSOR.execute(sql, (self.id,))
         CONN.commit()
+        
+        del User.all[self.id]
+
+    @classmethod
+    def get_all(cls):
+        sql = """
+            SELCT *
+            FROM users
+        """
+
+        rows = CURSOR.execute(sql).fetchall()
+
+        return [cls.instance_from_db(row) for row in rows]
+
+    @classmethod 
+    def instance_from_db(cls, row):
+        user = cls.all.get(row[0])
+        if user:
+            user.username = row[1]
+            user.user_type = row[2]
+        else:
+            user = cls(row[1], row[2])
+            user.id = row[0]
+            cls.all[user.id] = user
+    
+    @classmethod
+    def find_by_id(cls, id):
+        sql = """
+            SELECT *
+            FROM users
+            WHERE id = ?
+        """
+
+        row = CURSOR.execute(sql, (id,)).fetchone()
+        return cls.instance_from_db(row) if row else None

@@ -1,6 +1,7 @@
 from models.__init__ import CONN, CURSOR
 
 class File:
+    all = {}
     files_of_users = []
 
     def __init__(self, file_name, file_type, description, user_id, id=None):
@@ -99,6 +100,7 @@ class File:
         CONN.commit()
 
         self.id = CURSOR.lastrowid
+        File.all[self.id] = self
 
     def delete(self):
         sql = """
@@ -108,3 +110,40 @@ class File:
 
         CURSOR.execute(sql, (self.id,))
         CONN.commit()
+
+        del File.all[self.id]
+
+    @classmethod
+    def get_all(cls):
+        sql = """
+            SELCT *
+            FROM files
+        """
+
+        rows = CURSOR.execute(sql).fetchall()
+
+        return [cls.instance_from_db(row) for row in rows]
+
+    @classmethod 
+    def instance_from_db(cls, row):
+        file = cls.all.get(row[0])
+        if file:
+            file.file_name = row[1]
+            file.file_type = row[2]
+            file.description = row[3]
+            file.user_id = row[4]
+        else:
+            file = cls(row[1], row[2], row[3], row[4])
+            file.id = row[0]
+            cls.all[file.id] = file
+    
+    @classmethod
+    def find_by_id(cls, id):
+        sql = """
+            SELECT *
+            FROM files
+            WHERE id = ?
+        """
+
+        row = CURSOR.execute(sql, (id,)).fetchone()
+        return cls.instance_from_db(row) if row else None
