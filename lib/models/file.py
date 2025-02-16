@@ -39,7 +39,7 @@ class File:
     def file_type (self, value):
         if type(value) != str:
             raise TypeError("File type must be a string")
-        if value != ".doc" or value != ".xls" or value != ".ppt" or value != ".pdf":
+        if value != ".doc" and value != ".xls" and value != ".ppt" and value != ".pdf":
             raise TypeError("File type must be .doc, .xls, .ppt or .pdf")
         if hasattr(self, '_file_type'):
             raise AttributeError("This attribute is immutable")
@@ -113,11 +113,15 @@ class File:
         CONN.commit()
 
         del File.all[self.id]
+        
+        for file in File.files_of_users:
+            if self.file_name in file:
+                File.files_of_users.remove(file)
 
     @classmethod
     def get_all(cls):
         sql = """
-            SELCT *
+            SELECT *
             FROM files
         """
 
@@ -130,13 +134,15 @@ class File:
         file = cls.all.get(row[0])
         if file:
             file.file_name = row[1]
-            file.file_type = row[2]
+            # file.file_type = row[2]
             file.description = row[3]
             file.user_id = row[4]
+            return file
         else:
             file = cls(row[1], row[2], row[3], row[4])
             file.id = row[0]
             cls.all[file.id] = file
+            return file
     
     @classmethod
     def find_by_id(cls, id):
