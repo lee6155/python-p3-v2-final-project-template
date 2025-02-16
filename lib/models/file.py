@@ -89,6 +89,7 @@ class File:
     def create(cls, file_name, file_type, description, user_id):
         file = cls(file_name, file_type, description, user_id)
         file.save()
+        return file
 
     def save(self):
         sql = """

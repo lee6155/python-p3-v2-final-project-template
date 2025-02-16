@@ -38,7 +38,7 @@ class User:
     def user_type (self, value):
         if type(value) != str:
             raise TypeError("The user type must be a string")
-        if value != "personal" or value != "business":
+        if value != "personal" and value != "business":
             raise ValueError("The user type must be either personal or business")
         
         self._user_type = value
@@ -68,8 +68,9 @@ class User:
 
     @classmethod
     def create(cls, username, user_type):
-        file = cls(username, user_type)
-        file.save()
+        user = cls(username, user_type)
+        user.save()
+        return user
 
     def save(self):
         sql = """
@@ -93,11 +94,12 @@ class User:
         CONN.commit()
         
         del User.all[self.id]
+        User.usernames.remove(self.username)
 
     @classmethod
     def get_all(cls):
         sql = """
-            SELCT *
+            SELECT *
             FROM users
         """
 
@@ -109,12 +111,14 @@ class User:
     def instance_from_db(cls, row):
         user = cls.all.get(row[0])
         if user:
-            user.username = row[1]
+            # user.username = row[1]
             user.user_type = row[2]
+            return user
         else:
             user = cls(row[1], row[2])
             user.id = row[0]
             cls.all[user.id] = user
+            return user
     
     @classmethod
     def find_by_id(cls, id):
