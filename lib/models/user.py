@@ -21,8 +21,8 @@ class User:
     def username(self, value):
         if type(value) != str:
             raise TypeError("Username must be a string")
-        if len(value) < 3 or len(value) > 30:
-            raise ValueError("Username must be between 3 and 30 characters")
+        if len(value) < 2 or len(value) > 20:
+            raise ValueError("Username must be between 2 and 20 characters")
         if hasattr(self, '_username'):
             raise AttributeError("This attribute is immutable")
         if value in User.usernames:
@@ -130,3 +130,30 @@ class User:
 
         row = CURSOR.execute(sql, (id,)).fetchone()
         return cls.instance_from_db(row) if row else None
+    
+    @classmethod
+    def users_by_type(cls, user_type):
+        sql = """
+            SELECT *
+            FROM users
+            WHERE user_type = ?
+        """
+
+        rows = CURSOR.execute(sql, (user_type,)).fetchall()
+
+        users = []
+        for row in rows:
+            users.append(row[1])
+        
+        return users
+    
+    @classmethod
+    def number_users_by_type(cls, user_type):
+        sql = """
+            SELECT COUNT(user_type)
+            FROM users
+            WHERE user_type = ?
+        """
+
+        number = CURSOR.execute(sql, (user_type,)).fetchone()
+        return number[0]
