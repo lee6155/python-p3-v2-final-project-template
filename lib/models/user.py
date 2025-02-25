@@ -148,6 +148,17 @@ class User:
         return users
     
     @classmethod
+    def number_users(cls):
+        sql = """
+            SELECT COUNT(id)
+            FROM users
+            WHERE id > 0
+        """
+
+        number = CURSOR.execute(sql).fetchone()
+        return number[0]
+
+    @classmethod
     def number_users_by_type(cls, user_type):
         sql = """
             SELECT COUNT(user_type)
