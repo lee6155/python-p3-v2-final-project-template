@@ -154,3 +154,169 @@ class File:
 
         row = CURSOR.execute(sql, (id,)).fetchone()
         return cls.instance_from_db(row) if row else None
+
+    @classmethod
+    def files_by_type(cls, file_type):
+        sql = """
+            SELECT *
+            FROM files
+            WHERE file_type = ?
+        """
+
+        rows = CURSOR.execute(sql, (file_type,)).fetchall()
+
+        files = []
+        for row in rows:
+            files.append([row[1], row[3], row[4]])
+        
+        return files
+    
+    @classmethod
+    def files_by_user(cls, user_id):
+        sql = """
+            SELECT *
+            FROM files
+            WHERE user_id = ?
+        """
+
+        rows = CURSOR.execute(sql, (user_id,)).fetchall()
+
+        files = []
+        for row in rows:
+            files.append([row[1], row[2], row[3]])
+        
+        return files
+
+    @classmethod
+    def files_by_type_and_user(cls, file_type, user_id):
+        sql = """
+            SELECT *
+            FROM files
+            WHERE file_type = ?
+            AND user_id = ?
+        """
+
+        rows = CURSOR.execute(sql, (file_type, user_id)).fetchall()
+
+        files = []
+        for row in rows:
+            files.append([row[1], row[3]])
+        
+        return files
+
+    @classmethod
+    def number_files(cls):
+        sql = """
+            SELECT COUNT(id)
+            FROM files
+            WHERE id > 0
+        """
+
+        number = CURSOR.execute(sql).fetchone()
+        return number[0]
+    
+    @classmethod
+    def number_files_by_type(cls, file_type):
+        sql = """
+            SELECT COUNT(file_name)
+            FROM files
+            WHERE file_type = ?
+        """
+
+        number = CURSOR.execute(sql, (file_type,)).fetchone()
+        return number[0]
+    
+    @classmethod
+    def number_files_by_user(cls, user_id):
+        sql = """
+            SELECT COUNT(file_name)
+            FROM files
+            WHERE user_id = ?
+        """
+
+        number = CURSOR.execute(sql, (user_id,)).fetchone()
+        return number[0]
+
+    @classmethod
+    def number_files_by_type_and_user(cls, file_type, user_id):
+        sql = """
+            SELECT COUNT(file_name)
+            FROM files
+            WHERE file_type = ?
+            AND user_id = ?
+        """
+
+        number = CURSOR.execute(sql, (file_type, user_id)).fetchone()
+        return number[0]
+
+    @classmethod
+    def search_file_name(cls, search):
+        sql = """
+            SELECT *
+            FROM files
+            WHERE file_name LIKE ?
+        """
+
+        rows = CURSOR.execute(sql, ('%' + search + '%',)).fetchall()
+
+        files = []
+        for row in rows:
+            files.append([row[1], row[2], row[3], row[4]])
+        
+        return files
+    
+    # @classmethod
+    # def search_description(cls, search):
+    #     sql = """
+    #         SELECT *
+    #         FROM files
+    #         WHERE description LIKE ?
+    #     """
+
+    #     rows = CURSOR.execute(sql, ('%' + search + '%',)).fetchall()
+
+    #     files = []
+    #     for row in rows:
+    #         files.append([row[1], row[2], row[3], row[4]])
+        
+    #     return files
+
+    @classmethod
+    def search_file_name_and_user(cls, file_name_search, user_id):
+        sql = """
+            SELECT *
+            FROM files
+            WHERE file_name LIKE ? AND user_id = ?
+        """
+
+        rows = CURSOR.execute(sql, ('%' + file_name_search + '%', user_id)).fetchall()
+
+        files = []
+        for row in rows:
+            files.append([row[1], row[2], row[3]])
+        
+        return files
+    
+    # file_name, file_type, description, user_id, id
+
+    @classmethod
+    def count_searched_file_name(cls, search):
+        sql = """
+            SELECT COUNT(file_name)
+            FROM files
+            WHERE file_name LIKE ?
+        """
+
+        number = CURSOR.execute(sql, ('%' + search + '%',)).fetchone()
+        return number[0]
+    
+    @classmethod
+    def count_searched_file_name_and_user(cls, file_name_search, user_id):
+        sql = """
+            SELECT COUNT(file_name)
+            FROM files
+            WHERE file_name LIKE ? AND user_id = ?
+        """
+
+        number = CURSOR.execute(sql, ('%' + file_name_search + '%', user_id)).fetchone()
+        return number[0]
