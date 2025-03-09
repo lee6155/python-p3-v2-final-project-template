@@ -51,7 +51,7 @@ def main():
                 print("1. Create a user")
                 print("2. Delete a user")
                 print("3. See all users")
-                # print("***4. Find user by ID***")
+                # print("4. Find user by ID")
                 print("4. See users by type")
                 print("5. Calculate total number of users")
                 print("6. Calculate number of users by type")
@@ -88,20 +88,38 @@ def main():
                     print(f'User deleted! Username: {username}')
 
                 elif user_level_choice == "3":
-                    User.get_all()
+                    if User.get_all() != []:
+                        print(User.get_all())
+                        print("Users found!")
+                    else:
+                        print("No users found")
 
                 # elif user_level_choice == "4":
                 #     User.find_by_id()
 
                 elif user_level_choice == "4":
-                    User.users_by_type()
+                    print('\033[4mEnter user type (without "")\033[0m:')
+                    user_type = input(">>> ")
+                    if user_type != "personal" and user_type != "business":
+                        raise ValueError("The user type must be either personal or business")
+                    
+                    if User.users_by_type(user_type) != []:
+                        print(User.users_by_type(user_type))
+                        print("Users found!")
+                    else:
+                        print("No users found")
 
                 elif user_level_choice == "5":
-                    User.number_users()
+                    print(f'Total number of users: {User.number_users()}')
 
                 elif user_level_choice == "6":
-                    User.number_users_by_type
+                    print('\033[4mEnter user type (without "")\033[0m:')
+                    user_type = input(">>> ")
+                    if user_type != "personal" and user_type != "business":
+                        raise ValueError("The user type must be either personal or business")
                     
+                    print(f'Number of {user_type} users: {User.number_users_by_type(user_type)}')
+                        
                 else:              
                     print("Invalid choice")    
 
