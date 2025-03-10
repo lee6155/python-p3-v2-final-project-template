@@ -8,21 +8,6 @@ from models.user import (
 
 from models.file import (
     File
-    # create,
-    # delete,
-    # get_all,
-    # find_by_id,
-    # files_by_type,
-    # files_by_user,
-    # files_by_type_and_user,
-    # number_files,
-    # number_files_by_type,
-    # number_files_by_user,
-    # number_files_by_type_and_user,
-    # search_file_name,
-    # search_file_name_and_user,
-    # count_searched_file_name,
-    # count_searched_file_name_and_user
 )
 
 import fire
@@ -67,7 +52,7 @@ def main():
                     username = input(">>> ")
                     user_type = input(">>> ")
                     User.create(username, user_type)
-                    print(f'User created! Username: {username}, User Type: {user_type}')
+                    print("User created!")
 
                 elif user_level_choice == "2":
                     print('\033[4mEnter username (without "")\033[0m:')
@@ -85,7 +70,7 @@ def main():
                         instance.delete()
 
                     cli_delete(username)
-                    print(f'User deleted! Username: {username}')
+                    print("User deleted!")
 
                 elif user_level_choice == "3":
                     if User.get_all() != []:
@@ -124,7 +109,171 @@ def main():
                     print("Invalid choice")    
 
         elif main_choice == "2":
-            print("Functions for files")
+            secondary_menu = "file choices"
+            while secondary_menu == "file choices":
+                print("\033[4mFuntions for files\033[0m")
+                print("\033[4mPlease select an option\033[0m:")
+                print("0. Go back to previous menu")
+                print("1. Create a file")
+                print("2. Delete a file")
+                print("---------------------------------------------------------------------")
+                print("3. See all files")
+                # print("4. Find file by ID")
+                print("4. See files by type")
+                print("5. See files by user")
+                print("6. See files by type and user")
+                print("7. Calculate total number of files")
+                print("8. Calculate number of files by type")
+                print("9. Calculate number of files by user")
+                print("10. Calculate number of files by type and user")
+                print("---------------------------------------------------------------------")
+                print("11. Search files by file name")
+                print("12. Search files by file name and user")
+                print("13. Calculate number of matches when searching by file name")
+                print("14. Calculate number of matches when searching by file name and user")
+                file_level_choice = input(">>> ")
+
+                File.create_table()
+
+                def get_id_from_username(username):
+                        sql = """
+                            SELECT id
+                            FROM users
+                            WHERE username = ?
+                        """
+
+                        row = CURSOR.execute(sql, (username,)).fetchone()
+
+                        if row == None:
+                            return "0"
+                        else:
+                            return row[0]
+                    
+                if file_level_choice == "0":
+                    secondary_menu = ""
+
+                elif file_level_choice == "1":
+                    print('\033[4mEnter file name, then the file type, description and user name (without "")\033[0m:')
+                    file_name = input(">>> ")
+                    file_type = input(">>> ")
+                    description = input(">>> ")
+                    username = input(">>> ")
+
+                    id = get_id_from_username(username)
+
+                    File.create(file_name, file_type, description, id)
+
+                    print("File created!")
+                
+                elif file_level_choice == "2":
+                    print('\033[4mEnter file name (without "")\033[0m:')
+                    file_name = input(">>> ")
+
+                    def cli_delete(file_name):
+                        sql = """
+                            SELECT *
+                            FROM files
+                            WHERE file_name = ?
+                        """
+
+                        row = CURSOR.execute(sql, (file_name,)).fetchone()
+                        instance = File.instance_from_db(row) if row else None
+                        instance.delete()
+
+                    cli_delete(file_name)
+                    print("File deleted!")
+                
+                elif file_level_choice == "3":
+                    if File.get_all() != []:
+                        print(File.get_all())
+                        print("Files found!")
+                    else:
+                        print("No files found")
+                
+                elif file_level_choice == "4":
+                    print('\033[4mEnter file type (without "")\033[0m:')
+                    file_type = input(">>> ")
+                    
+                    if file_type != ".doc" and file_type != ".xls" and file_type != ".ppt" and file_type != ".pdf":
+                        raise ValueError("The file type must be either .doc, .xls, .ppt or .pdf")
+                    
+                    if File.files_by_type(file_type) != []:
+                        print(File.files_by_type(file_type))
+                        print("Files found!")
+                    else:
+                        print("No files found")
+
+                elif file_level_choice == "5":
+                    print('\033[4mEnter username (without "")\033[0m:')
+                    username = input(">>> ")
+
+                    id = get_id_from_username(username)
+                    
+                    if File.files_by_user(id) != []:
+                        print(File.files_by_user(id))
+                        print("Files found!")
+                    else:
+                        print("No files found")
+                
+                elif file_level_choice == "6":
+                    print('\033[4mEnter file type, then username (without "")\033[0m:')
+                    file_type = input(">>> ")
+                    username = input(">>> ")
+
+                    if file_type != ".doc" and file_type != ".xls" and file_type != ".ppt" and file_type != ".pdf":
+                        raise ValueError("The file type must be either .doc, .xls, .ppt or .pdf")
+
+                    id = get_id_from_username(username)
+                    
+                    if File.files_by_type_and_user(file_type, id) != []:
+                        print(File.files_by_type_and_user(file_type, id))
+                        print("Files found!")
+                    else:
+                        print("No files found")
+                
+                elif file_level_choice == "7":
+                    print(f'Total number of files: {File.number_files()}')
+                
+                elif file_level_choice == "8":
+                    print('\033[4mEnter file type (without "")\033[0m:')
+                    file_type = input(">>> ")
+
+                    if file_type != ".doc" and file_type != ".xls" and file_type != ".ppt" and file_type != ".pdf":
+                        raise ValueError("The file type must be either .doc, .xls, .ppt or .pdf")
+                    
+                    print(f'Number of {file_type} files: {File.number_files_by_type(file_type)}')
+                
+                elif file_level_choice == "9":
+                    print('\033[4mEnter username (without "")\033[0m:')
+                    username = input(">>> ")
+
+                    id = get_id_from_username(username)
+
+                    print(f'Number of files for {username}: {File.number_files_by_user(id)}')              
+                
+                elif file_level_choice == "10":
+                    print('\033[4mEnter file type, then user (without "")\033[0m:')
+                    file_type = input(">>> ")
+                    username = input(">>> ")
+
+                    id = get_id_from_username(username)
+
+                    print(f'Number of {file_type} files for {username}: {File.number_files_by_type_and_user(file_type, id)}')
+                
+                elif file_level_choice == "11":
+                    File.search_file_name()
+                
+                elif file_level_choice == "12":
+                    File.search_file_name_and_user()                
+                
+                elif file_level_choice == "13":
+                    File.count_searched_file_name()
+                
+                elif file_level_choice == "14":
+                    File.count_searched_file_name_and_user()
+                
+                else:              
+                    print("Invalid choice")
 
         else:
             print("Invalid choice")

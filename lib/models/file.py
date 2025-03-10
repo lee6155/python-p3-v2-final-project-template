@@ -15,8 +15,18 @@ class File:
         self.user_id = user_id
         File.append(file_name, user_id)
 
+    def get_username_from_user_id(user_id):
+        sql = """
+            SELECT username
+            FROM users
+            WHERE id = ?
+        """
+
+        row = CURSOR.execute(sql, (user_id,)).fetchone()
+        return row[0]
+
     def __repr__(self):
-        return f"File {self.id}: {self.file_name}, {self.file_type}, {self.description}, User ID: {self.user_id}"
+        return f"File {self.id}: {self.file_name}, {self.file_type}, {self.description}, Username: {File.get_username_from_user_id(self.user_id)}"
     
     @property
     def file_name(self):
@@ -167,7 +177,7 @@ class File:
 
         files = []
         for row in rows:
-            files.append([row[1], row[3], row[4]])
+            files.append([row[1], row[3], File.get_username_from_user_id(row[4])])
         
         return files
     
