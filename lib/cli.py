@@ -261,17 +261,43 @@ def main():
                     print(f'Number of {file_type} files for {username}: {File.number_files_by_type_and_user(file_type, id)}')
                 
                 elif file_level_choice == "11":
-                    File.search_file_name()
+                    print('\033[4mEnter search term (without "")\033[0m:')
+                    search_term = input(">>> ")
+
+                    if File.search_file_name(search_term) != []:
+                        print(File.search_file_name(search_term))
+                    else:
+                        print("No files found")
                 
                 elif file_level_choice == "12":
-                    File.search_file_name_and_user()                
+                    print('\033[4mEnter search term for file name, then username (without "")\033[0m:')
+                    
+                    search_term = input(">>> ")
+                    username = input(">>> ")
+                    
+                    id = get_id_from_username(username)
+
+                    if File.search_file_name_and_user(search_term, id) != []:
+                        print(File.search_file_name_and_user(search_term, id))
+                    else:
+                        print("No files found")              
                 
                 elif file_level_choice == "13":
-                    File.count_searched_file_name()
+                    print('\033[4mEnter search term (without "")\033[0m:')
+                    search_term = input(">>> ")
+
+                    print(f'Total number of files: {File.count_searched_file_name(search_term)}')
                 
                 elif file_level_choice == "14":
-                    File.count_searched_file_name_and_user()
-                
+                    print('\033[4mEnter search term for file name, then username (without "")\033[0m:')
+
+                    search_term = input(">>> ")
+                    username = input(">>> ")
+
+                    id = get_id_from_username(username)
+
+                    print(f'Total number of files: {File.count_searched_file_name_and_user(search_term, id)}')
+
                 else:              
                     print("Invalid choice")
 

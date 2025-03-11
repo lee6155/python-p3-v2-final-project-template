@@ -271,7 +271,7 @@ class File:
 
         files = []
         for row in rows:
-            files.append([row[1], row[2], row[3], row[4]])
+            files.append([row[1], row[2], row[3], File.get_username_from_user_id(row[4])])
         
         return files
     
