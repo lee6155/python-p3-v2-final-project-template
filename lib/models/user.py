@@ -2,16 +2,11 @@ from models.__init__ import CONN, CURSOR
 
 class User:
     all = {}
-    usernames = []
 
     def __init__(self, username, user_type, id=None):
         self.id = id
         self.username = username
         self.user_type = user_type
-        User.append(self.username)
-
-    def __repr__(self):
-        return f"User {self.id}: {self.username}, {self.user_type}"
     
     @property
     def username(self):
@@ -25,8 +20,20 @@ class User:
             raise ValueError("Username must be between 2 and 20 characters")
         if hasattr(self, '_username'):
             raise AttributeError("This attribute is immutable")
-        if value in User.usernames:
-            raise NameError("This username already exists. Please choose another.")
+        
+        # def check_username(value):
+        #     sql = """
+        #         SELECT *
+        #         FROM users
+        #         WHERE username = ?
+        #     """
+
+        #     row = CURSOR.execute(sql, (value,)).fetchone()
+
+        #     if row != None:
+        #         raise NameError("This username already exists. Please choose another.")
+
+        # check_username(value)
         
         self._username = value
 
@@ -43,10 +50,6 @@ class User:
         
         self._user_type = value
 
-    @classmethod
-    def append(cls, username):
-        cls.usernames.append(username)
-    
     @classmethod
     def create_table(cls):
         sql = """
@@ -83,6 +86,7 @@ class User:
 
         self.id = CURSOR.lastrowid
         User.all[self.id] = self
+        print(User.all)
 
     def delete(self):
         sql = """
@@ -94,7 +98,6 @@ class User:
         CONN.commit()
         
         del User.all[self.id]
-        User.usernames.remove(self.username)
 
     @classmethod
     def get_all(cls):
@@ -104,12 +107,12 @@ class User:
         """
 
         rows = CURSOR.execute(sql).fetchall()
-
         return [cls.instance_from_db(row) for row in rows]
 
     @classmethod 
     def instance_from_db(cls, row):
         user = cls.all.get(row[0])
+
         if user:
             # user.username = row[1]
             user.user_type = row[2]
@@ -121,17 +124,6 @@ class User:
             return user
     
     @classmethod
-    def find_by_id(cls, id):
-        sql = """
-            SELECT *
-            FROM users
-            WHERE id = ?
-        """
-
-        row = CURSOR.execute(sql, (id,)).fetchone()
-        return cls.instance_from_db(row) if row else None
-    
-    @classmethod
     def users_by_type(cls, user_type):
         sql = """
             SELECT *
@@ -140,31 +132,16 @@ class User:
         """
 
         rows = CURSOR.execute(sql, (user_type,)).fetchall()
+        return [cls.instance_from_db(row) for row in rows]
 
-        users = []
-        for row in rows:
-            users.append(row[1])
-        
-        return users
-    
     @classmethod
     def number_users(cls):
-        sql = """
-            SELECT COUNT(id)
-            FROM users
-            WHERE id > 0
-        """
-
-        number = CURSOR.execute(sql).fetchone()
-        return number[0]
+        users = User.get_all()
+        count = len(users)
+        return count
 
     @classmethod
     def number_users_by_type(cls, user_type):
-        sql = """
-            SELECT COUNT(user_type)
-            FROM users
-            WHERE user_type = ?
-        """
-
-        number = CURSOR.execute(sql, (user_type,)).fetchone()
-        return number[0]
+        users = User.users_by_type(user_type)
+        count = len(users)
+        return count

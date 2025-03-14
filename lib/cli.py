@@ -12,6 +12,9 @@ from models.file import (
 
 import fire
 
+# use Helpers to reduce amount of code
+# take a look at video of owners and dogs
+# keep having to go back for long names, keep having to type
 
 def main():
     menu = "main"
@@ -36,7 +39,6 @@ def main():
                 print("1. Create a user")
                 print("2. Delete a user")
                 print("3. See all users")
-                # print("4. Find user by ID")
                 print("4. See users by type")
                 print("5. Calculate total number of users")
                 print("6. Calculate number of users by type")
@@ -73,14 +75,14 @@ def main():
                     print("User deleted!")
 
                 elif user_level_choice == "3":
-                    if User.get_all() != []:
-                        print(User.get_all())
+                    users = User.get_all()
+
+                    if users != []:
                         print("Users found!")
+                        for user in users:
+                            print(f"{user.username}, {user.user_type}")
                     else:
                         print("No users found")
-
-                # elif user_level_choice == "4":
-                #     User.find_by_id()
 
                 elif user_level_choice == "4":
                     print('\033[4mEnter user type (without "")\033[0m:')
@@ -88,9 +90,11 @@ def main():
                     if user_type != "personal" and user_type != "business":
                         raise ValueError("The user type must be either personal or business")
                     
-                    if User.users_by_type(user_type) != []:
-                        print(User.users_by_type(user_type))
+                    users = User.users_by_type(user_type)
+                    if users != []:
                         print("Users found!")
+                        for user in users:
+                            print(f"{user.username}")
                     else:
                         print("No users found")
 
@@ -106,8 +110,11 @@ def main():
                     print(f'Number of {user_type} users: {User.number_users_by_type(user_type)}')
                         
                 else:              
-                    print("Invalid choice")    
-
+                    print("Invalid choice")
+            
+    #CLI, make new line when type info
+    # Will have many other loops
+    
         elif main_choice == "2":
             secondary_menu = "file choices"
             while secondary_menu == "file choices":
@@ -118,7 +125,6 @@ def main():
                 print("2. Delete a file")
                 print("---------------------------------------------------------------------")
                 print("3. See all files")
-                # print("4. Find file by ID")
                 print("4. See files by type")
                 print("5. See files by user")
                 print("6. See files by type and user")

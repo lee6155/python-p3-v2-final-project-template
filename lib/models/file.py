@@ -2,19 +2,28 @@ from models.__init__ import CONN, CURSOR
 
 class File:
     all = {}
-    files_of_users = []
-
+    
     def __init__(self, file_name, file_type, description, user_id, id=None):
-        for file in File.files_of_users:
-            if file[0] == file_name and file[1] == user_id:
-                raise NameError("This file name already exists for this user")
         self.id = id
         self.file_name = file_name
         self.file_type = file_type
         self.description = description
         self.user_id = user_id
-        File.append(file_name, user_id)
+        # self.check_file_name(file_name, user_id)
 
+    # @classmethod
+    # def check_file_name(cls, file_name, user_id):
+    #     sql = """
+    #         SELECT *
+    #         FROM files
+    #         WHERE file_name = ? AND user_id = ?
+    #     """
+
+    #     row = CURSOR.execute(sql, (file_name, user_id)).fetchall()
+
+    #     if row != []:
+    #         raise NameError("This file name already exists for this user")
+        
     def get_username_from_user_id(user_id):
         sql = """
             SELECT username
@@ -24,9 +33,6 @@ class File:
 
         row = CURSOR.execute(sql, (user_id,)).fetchone()
         return row[0]
-
-    def __repr__(self):
-        return f"File {self.id}: {self.file_name}, {self.file_type}, {self.description}, Username: {File.get_username_from_user_id(self.user_id)}"
     
     @property
     def file_name(self):
@@ -38,7 +44,7 @@ class File:
             raise TypeError("File name must be a string")
         if len(value) < 1 or len(value) > 30:
             raise ValueError("File name must be between 1 and 30 characters")
-
+        
         self._file_name = value
 
     @property
@@ -68,10 +74,6 @@ class File:
             raise ValueError("The file description must be between 1 and 100 characters")
 
         self._description = value
-
-    @classmethod
-    def append(cls, file_name, user_id):
-        cls.files_of_users.append([file_name, user_id])
 
     @classmethod
     def create_table(cls):
@@ -123,10 +125,6 @@ class File:
         CONN.commit()
 
         del File.all[self.id]
-        
-        for file in File.files_of_users:
-            if self.file_name in file:
-                File.files_of_users.remove(file)
 
     @classmethod
     def get_all(cls):
@@ -153,17 +151,6 @@ class File:
             file.id = row[0]
             cls.all[file.id] = file
             return file
-    
-    @classmethod
-    def find_by_id(cls, id):
-        sql = """
-            SELECT *
-            FROM files
-            WHERE id = ?
-        """
-
-        row = CURSOR.execute(sql, (id,)).fetchone()
-        return cls.instance_from_db(row) if row else None
 
     @classmethod
     def files_by_type(cls, file_type):
@@ -182,6 +169,7 @@ class File:
         return files
     
     @classmethod
+    #instance method
     def files_by_user(cls, user_id):
         sql = """
             SELECT *
@@ -190,15 +178,21 @@ class File:
         """
 
         rows = CURSOR.execute(sql, (user_id,)).fetchall()
+        #getting row, not object
 
         files = []
         for row in rows:
             files.append([row[1], row[2], row[3]])
+            #ORM methods return objects, not lists of lists
+            #Getting data from rows, not objects
+
+            # instead of .append use a list comprehension
         
         return files
 
     @classmethod
     def files_by_type_and_user(cls, file_type, user_id):
+    # files by user is above, 
         sql = """
             SELECT *
             FROM files
@@ -274,22 +268,6 @@ class File:
             files.append([row[1], row[2], row[3], File.get_username_from_user_id(row[4])])
         
         return files
-    
-    # @classmethod
-    # def search_description(cls, search):
-    #     sql = """
-    #         SELECT *
-    #         FROM files
-    #         WHERE description LIKE ?
-    #     """
-
-    #     rows = CURSOR.execute(sql, ('%' + search + '%',)).fetchall()
-
-    #     files = []
-    #     for row in rows:
-    #         files.append([row[1], row[2], row[3], row[4]])
-        
-    #     return files
 
     @classmethod
     def search_file_name_and_user(cls, file_name_search, user_id):
@@ -307,8 +285,6 @@ class File:
         
         return files
     
-    # file_name, file_type, description, user_id, id
-
     @classmethod
     def count_searched_file_name(cls, search):
         sql = """
