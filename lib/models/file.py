@@ -1,5 +1,9 @@
 from models.__init__ import CONN, CURSOR
 
+from models.user import (
+    User
+)
+
 class File:
     all = {}
     
@@ -26,13 +30,15 @@ class File:
         
     def get_username_from_user_id(user_id):
         sql = """
-            SELECT username
+            SELECT *
             FROM users
             WHERE id = ?
         """
 
         row = CURSOR.execute(sql, (user_id,)).fetchone()
-        return row[0]
+        user = User.instance_from_db(row)
+        username = user.username
+        return username
     
     @property
     def file_name(self):
@@ -134,12 +140,12 @@ class File:
         """
 
         rows = CURSOR.execute(sql).fetchall()
-
         return [cls.instance_from_db(row) for row in rows]
 
     @classmethod 
     def instance_from_db(cls, row):
         file = cls.all.get(row[0])
+
         if file:
             file.file_name = row[1]
             # file.file_type = row[2]
@@ -161,97 +167,48 @@ class File:
         """
 
         rows = CURSOR.execute(sql, (file_type,)).fetchall()
-
-        files = []
-        for row in rows:
-            files.append([row[1], row[3], File.get_username_from_user_id(row[4])])
-        
-        return files
+        return [cls.instance_from_db(row) for row in rows]
     
-    @classmethod
-    #instance method
-    def files_by_user(cls, user_id):
+    def files_by_user(id):
         sql = """
             SELECT *
             FROM files
             WHERE user_id = ?
         """
 
-        rows = CURSOR.execute(sql, (user_id,)).fetchall()
-        #getting row, not object
-
-        files = []
-        for row in rows:
-            files.append([row[1], row[2], row[3]])
-            #ORM methods return objects, not lists of lists
-            #Getting data from rows, not objects
-
-            # instead of .append use a list comprehension
-        
-        return files
+        rows = CURSOR.execute(sql, (id,)).fetchall()
+        return [File.instance_from_db(row) for row in rows]
 
     @classmethod
-    def files_by_type_and_user(cls, file_type, user_id):
-    # files by user is above, 
-        sql = """
-            SELECT *
-            FROM files
-            WHERE file_type = ?
-            AND user_id = ?
-        """
-
-        rows = CURSOR.execute(sql, (file_type, user_id)).fetchall()
-
-        files = []
-        for row in rows:
-            files.append([row[1], row[3]])
+    def files_by_type_and_user(cls, file_type_selected, id_selected):
+        user_files = File.files_by_user(id_selected)
         
-        return files
+        user_files_by_type = [file for file in user_files if file.file_type == file_type_selected]
+        return user_files_by_type
 
     @classmethod
     def number_files(cls):
-        sql = """
-            SELECT COUNT(id)
-            FROM files
-            WHERE id > 0
-        """
-
-        number = CURSOR.execute(sql).fetchone()
-        return number[0]
+        files = File.get_all()
+        count = len(files)
+        return count
     
     @classmethod
     def number_files_by_type(cls, file_type):
-        sql = """
-            SELECT COUNT(file_name)
-            FROM files
-            WHERE file_type = ?
-        """
-
-        number = CURSOR.execute(sql, (file_type,)).fetchone()
-        return number[0]
+        files = File.files_by_type(file_type)
+        count = len(files)
+        return count
     
     @classmethod
     def number_files_by_user(cls, user_id):
-        sql = """
-            SELECT COUNT(file_name)
-            FROM files
-            WHERE user_id = ?
-        """
-
-        number = CURSOR.execute(sql, (user_id,)).fetchone()
-        return number[0]
+        files = File.files_by_user(user_id)
+        count = len(files)
+        return count
 
     @classmethod
     def number_files_by_type_and_user(cls, file_type, user_id):
-        sql = """
-            SELECT COUNT(file_name)
-            FROM files
-            WHERE file_type = ?
-            AND user_id = ?
-        """
-
-        number = CURSOR.execute(sql, (file_type, user_id)).fetchone()
-        return number[0]
+        files = File.files_by_type_and_user(file_type, user_id)
+        count = len(files)
+        return count
 
     @classmethod
     def search_file_name(cls, search):
@@ -262,28 +219,14 @@ class File:
         """
 
         rows = CURSOR.execute(sql, ('%' + search + '%',)).fetchall()
-
-        files = []
-        for row in rows:
-            files.append([row[1], row[2], row[3], File.get_username_from_user_id(row[4])])
-        
-        return files
+        return [File.instance_from_db(row) for row in rows]
 
     @classmethod
-    def search_file_name_and_user(cls, file_name_search, user_id):
-        sql = """
-            SELECT *
-            FROM files
-            WHERE file_name LIKE ? AND user_id = ?
-        """
+    def search_file_name_and_user(cls, search_term, id):
+        searched_file_names = File.search_file_name(search_term)
 
-        rows = CURSOR.execute(sql, ('%' + file_name_search + '%', user_id)).fetchall()
-
-        files = []
-        for row in rows:
-            files.append([row[1], row[2], row[3]])
-        
-        return files
+        searched_by_both = [file for file in searched_file_names if file.user_id == id]
+        return searched_by_both
     
     @classmethod
     def count_searched_file_name(cls, search):

@@ -190,9 +190,12 @@ def main():
                     print("File deleted!")
                 
                 elif file_level_choice == "3":
-                    if File.get_all() != []:
-                        print(File.get_all())
+                    files = File.get_all()
+
+                    if files != []:
                         print("Files found!")
+                        for file in files:
+                            print(f'{file.file_name}, {file.file_type}, {file.description}, {File.get_username_from_user_id(file.user_id)}')
                     else:
                         print("No files found")
                 
@@ -203,24 +206,27 @@ def main():
                     if file_type != ".doc" and file_type != ".xls" and file_type != ".ppt" and file_type != ".pdf":
                         raise ValueError("The file type must be either .doc, .xls, .ppt or .pdf")
                     
-                    if File.files_by_type(file_type) != []:
-                        print(File.files_by_type(file_type))
+                    files = File.files_by_type(file_type)
+                    if files != []:
                         print("Files found!")
+                        for file in files:
+                            print(f'{file.file_name}, {file.description}, {File.get_username_from_user_id(file.user_id)}')
                     else:
                         print("No files found")
 
                 elif file_level_choice == "5":
                     print('\033[4mEnter username (without "")\033[0m:')
                     username = input(">>> ")
-
                     id = get_id_from_username(username)
-                    
-                    if File.files_by_user(id) != []:
-                        print(File.files_by_user(id))
+                    files = File.files_by_user(id)
+
+                    if files != []:
                         print("Files found!")
+                        for file in files:
+                            print(f'{file.file_name}, {file.file_type}, {file.description}')
                     else:
                         print("No files found")
-                
+
                 elif file_level_choice == "6":
                     print('\033[4mEnter file type, then username (without "")\033[0m:')
                     file_type = input(">>> ")
@@ -231,9 +237,12 @@ def main():
 
                     id = get_id_from_username(username)
                     
-                    if File.files_by_type_and_user(file_type, id) != []:
-                        print(File.files_by_type_and_user(file_type, id))
+                    files = File.files_by_type_and_user(file_type, id)
+
+                    if files != []:
                         print("Files found!")
+                        for file in files:
+                            print(f'{file.file_name}, {file.description}')
                     else:
                         print("No files found")
                 
@@ -270,8 +279,12 @@ def main():
                     print('\033[4mEnter search term (without "")\033[0m:')
                     search_term = input(">>> ")
 
-                    if File.search_file_name(search_term) != []:
-                        print(File.search_file_name(search_term))
+                    files = File.search_file_name(search_term)
+
+                    if files != []:
+                        print("Files found!")
+                        for file in files:
+                            print(f'{file.file_name}, {file.file_type}, {file.description}, {File.get_username_from_user_id(file.user_id)}')
                     else:
                         print("No files found")
                 
@@ -283,10 +296,14 @@ def main():
                     
                     id = get_id_from_username(username)
 
-                    if File.search_file_name_and_user(search_term, id) != []:
-                        print(File.search_file_name_and_user(search_term, id))
+                    files = File.search_file_name_and_user(search_term, id)
+
+                    if files != []:
+                        print("Files found!")
+                        for file in files:
+                            print(f'{file.file_name}, {file.file_type}, {file.description}')
                     else:
-                        print("No files found")              
+                        print("No files found")            
                 
                 elif file_level_choice == "13":
                     print('\033[4mEnter search term (without "")\033[0m:')

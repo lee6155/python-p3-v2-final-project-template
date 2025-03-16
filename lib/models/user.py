@@ -86,7 +86,6 @@ class User:
 
         self.id = CURSOR.lastrowid
         User.all[self.id] = self
-        print(User.all)
 
     def delete(self):
         sql = """
