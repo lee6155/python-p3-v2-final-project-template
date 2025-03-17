@@ -230,22 +230,12 @@ class File:
     
     @classmethod
     def count_searched_file_name(cls, search):
-        sql = """
-            SELECT COUNT(file_name)
-            FROM files
-            WHERE file_name LIKE ?
-        """
-
-        number = CURSOR.execute(sql, ('%' + search + '%',)).fetchone()
-        return number[0]
+        files = File.search_file_name(search)
+        count = len(files)
+        return count
     
     @classmethod
-    def count_searched_file_name_and_user(cls, file_name_search, user_id):
-        sql = """
-            SELECT COUNT(file_name)
-            FROM files
-            WHERE file_name LIKE ? AND user_id = ?
-        """
-
-        number = CURSOR.execute(sql, ('%' + file_name_search + '%', user_id)).fetchone()
-        return number[0]
+    def count_searched_file_name_and_user(cls, search_term, id):
+        files = File.search_file_name_and_user(search_term, id)
+        count = len(files)
+        return count
