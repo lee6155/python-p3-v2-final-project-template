@@ -105,6 +105,20 @@ class File:
 
     @classmethod
     def create(cls, file_name, file_type, description, user_id):
+        def check_file_name_and_user(file_name, user_id):
+            sql = """
+                SELECT *
+                FROM files
+                WHERE file_name = ? AND user_id = ?
+            """
+
+            row = [CURSOR.execute(sql, (file_name, user_id)).fetchone()]
+
+            if row != [None]:
+                raise NameError("This file name for this user already exists. Please choose another.")
+
+        check_file_name_and_user(file_name, user_id)
+
         file = cls(file_name, file_type, description, user_id)
         file.save()
         return file

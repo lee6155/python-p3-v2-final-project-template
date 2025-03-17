@@ -118,9 +118,13 @@ def delete_file():
         """
 
         row = CURSOR.execute(sql, (file_name,)).fetchone()
-
         instance = File.instance_from_db(row) if row else None
-        instance.delete()
+        
+        if instance != None:
+            print("File deleted!")
+            instance.delete()
+        else:
+            print("No file found")
 
     select_by_file_name(file_name)
 

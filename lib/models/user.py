@@ -21,20 +21,6 @@ class User:
         if hasattr(self, '_username'):
             raise AttributeError("This attribute is immutable")
         
-        # def check_username(value):
-        #     sql = """
-        #         SELECT *
-        #         FROM users
-        #         WHERE username = ?
-        #     """
-
-        #     row = CURSOR.execute(sql, (value,)).fetchone()
-
-        #     if row != None:
-        #         raise NameError("This username already exists. Please choose another.")
-
-        # check_username(value)
-        
         self._username = value
 
     @property
@@ -71,6 +57,20 @@ class User:
 
     @classmethod
     def create(cls, username, user_type):
+        def check_username(username):
+            sql = """
+                SELECT *
+                FROM users
+                WHERE username = ?
+            """
+
+            row = [CURSOR.execute(sql, (username,)).fetchone()]
+
+            if row != [None]:
+                raise NameError("This username already exists. Please choose another.")
+
+        check_username(username)
+
         user = cls(username, user_type)
         user.save()
         return user
