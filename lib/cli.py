@@ -5,9 +5,6 @@ from models.file import File
 
 import fire
 
-# take a look at video of owners and dogs
-# keep having to go back for long names, keep having to type
-
 from helpers import (
     create_user,
     delete_user,
@@ -28,7 +25,8 @@ from helpers import (
     search_files_by_name,
     search_files_by_name_and_user,
     number_files_by_searched_name,
-    number_files_by_searched_name_and_user
+    number_files_by_searched_name_and_user,
+    get_id_from_username
 )
 
 def main():
@@ -72,6 +70,35 @@ def main():
 
                 elif user_level_choice == "3":
                     get_all_users()
+
+                    level_three_menu = "1"
+                    while level_three_menu == "1":
+                        print("\033[4mPlease select an option\033[0m:")
+                        print("0. Go back to previous menu")
+                        print("1. See files by user")
+                        level_three_choice = input(">>> ")
+
+                        if level_three_choice  == "0":
+                            level_three_menu = ""
+
+                        if level_three_choice == "1":
+                            print("\033[4mPlease select the number of the user\033[0m:")
+                            user_string = input(">>> ")
+                            user_number = int(user_string)
+
+                            all_users = User.get_all()
+                            selected_username = all_users[user_number-1].username
+                            id = get_id_from_username(selected_username)
+                            files = File.files_by_user(id)
+
+                            if files != []:
+                                print("Files found!")
+
+                                for file in files:
+                                    print(f'{file.file_name}, {file.file_type}, {file.description}')
+
+                            else:
+                                print("No files found")
 
                 elif user_level_choice == "4":
                     get_users_by_type()
@@ -155,7 +182,6 @@ def main():
                 
                 elif file_level_choice == "14":
                     number_files_by_searched_name_and_user()
-
                 else:              
                     print("Invalid choice")
 

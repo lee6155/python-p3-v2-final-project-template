@@ -54,8 +54,8 @@ def get_all_users():
 
     if users != []:
         print("Users found!")
-        for user in users:
-            print(f"{user.username}, {user.user_type}")
+        for i, user in enumerate(users):
+            print(f"{i+1}. {user.username}, {user.user_type}")
     else:
         print("No users found")
 
@@ -70,8 +70,8 @@ def get_users_by_type():
 
     if users != []:
         print("Users found!")
-        for user in users:
-            print(f"{user.username}")
+        for i, user in enumerate(users):
+            print(f"{i+1}. {user.username}")
     else:
         print("No users found")
 

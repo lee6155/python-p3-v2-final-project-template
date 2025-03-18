@@ -13,20 +13,6 @@ class File:
         self.file_type = file_type
         self.description = description
         self.user_id = user_id
-        # self.check_file_name(file_name, user_id)
-
-    # @classmethod
-    # def check_file_name(cls, file_name, user_id):
-    #     sql = """
-    #         SELECT *
-    #         FROM files
-    #         WHERE file_name = ? AND user_id = ?
-    #     """
-
-    #     row = CURSOR.execute(sql, (file_name, user_id)).fetchall()
-
-    #     if row != []:
-    #         raise NameError("This file name already exists for this user")
         
     def get_username_from_user_id(user_id):
         sql = """
