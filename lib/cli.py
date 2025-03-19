@@ -70,19 +70,24 @@ def main():
                         if level_three_choice  == "0":
                             level_three_menu = ""
 
-                        if level_three_choice == "1":
+                        elif level_three_choice == "1":
+                            get_all_users()
                             delete_selected_user()
 
-                        if level_three_choice == "2":
+                        elif level_three_choice == "2":
+                            get_all_users()
                             selected_user_create_file()
                             
-                        if level_three_choice == "3":
+                        elif level_three_choice == "3":
+                            get_all_users()
                             selected_user_delete_file()
 
-                        if level_three_choice == "4":
+                        elif level_three_choice == "4":
+                            get_all_users()
                             selected_user_see_files()
 
-                        if level_three_choice == "5":
+                        elif level_three_choice == "5":
+                            get_all_users()
                             selected_user_search_files()
                         
                         else:              

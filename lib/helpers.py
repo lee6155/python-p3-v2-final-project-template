@@ -17,9 +17,8 @@ def get_all_users():
     users = User.get_all()
 
     if users != []:
-        print("Users found!")
         for i, user in enumerate(users):
-            print(f"{i+1}. {user.username}, {user.user_type}")
+            print(f"{i+1}. Username: {user.username}, User Type: {user.user_type}")
     else:
         print("No users found")
 
@@ -34,8 +33,8 @@ def get_users_by_type():
 
     if users != []:
         print("Users found!")
-        for i, user in enumerate(users):
-            print(f"{i+1}. {user.username}")
+        for user in users:
+            print(f"Username: {user.username}")
     else:
         print("No users found")
                 
@@ -46,7 +45,7 @@ def get_all_files():
         print("Files found!")
 
         for file in files:
-            print(f'{file.file_name}, {file.file_type}, {file.description}, {file.username}')
+            print(f'File Name: {file.file_name}, File Type: {file.file_type}, Description: {file.description}, Username: {file.username}')
 
     else:
         print("No files found")
@@ -64,7 +63,7 @@ def get_files_by_type():
         print("Files found!")
 
         for file in files:
-            print(f'{file.file_name}, {file.description}, {file.username}')
+            print(f'File Name: {file.file_name}, Description: {file.description}, Username: {file.username}')
 
     else:
         print("No files found")
@@ -85,7 +84,7 @@ def get_files_by_type_and_user():
         print("Files found!")
 
         for file in files:
-            print(f'{file.file_name}, {file.description}')
+            print(f'File Name: {file.file_name}, Description: {file.description}')
 
     else:
         print("No files found")
@@ -103,7 +102,7 @@ def search_files_by_name_and_user():
         print("Files found!")
 
         for file in files:
-            print(f'{file.file_name}, {file.file_type}, {file.description}')
+            print(f'File Name: {file.file_name}, File Type: {file.file_type}, Description: {file.description}')
 
     else:
         print("No files found")
@@ -144,6 +143,10 @@ def selected_user_create_file():
 def selected_user_delete_file():
     username = get_username_from_selected_user()
     
+    files = File.files_by_user(username)
+    for file in files:
+        print(f'File Name: {file.file_name}, File Type: {file.file_type}, Description: {file.description}')
+
     print('\033[4mEnter file name (without ""), then press enter\033[0m:')
     file_name = input(">>> ")
 
@@ -164,7 +167,7 @@ def selected_user_see_files():
         print("Files found!")
 
         for file in files:
-            print(f'{file.file_name}, {file.file_type}, {file.description}')
+            print(f'File Name: {file.file_name}, File Type: {file.file_type}, Description: {file.description}')
 
     else:
         print("No files found")
@@ -181,7 +184,7 @@ def selected_user_search_files():
         print("Files found!")
 
         for file in files:
-            print(f'{file.file_name}, {file.file_type}, {file.description}')
+            print(f'File Name: {file.file_name}, File Type: {file.file_type}, Description: {file.description}')
 
     else:
         print("No files found")
