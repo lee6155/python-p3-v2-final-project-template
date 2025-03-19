@@ -3,9 +3,6 @@ from models.__init__ import CONN, CURSOR
 from models.user import User
 from models.file import File
 
-
-# user and file-level helpers -------------------------------------------
-
 def get_id_from_username(username):
     sql = """
         SELECT id
@@ -19,6 +16,18 @@ def get_id_from_username(username):
         return "0"
     else:
         return row[0]
+    
+def get_username_from_user_id(user_id):
+        sql = """
+            SELECT *
+            FROM users
+            WHERE id = ?
+        """
+
+        row = CURSOR.execute(sql, (user_id,)).fetchone()
+        user = User.instance_from_db(row)
+        username = user.username
+        return username
 
 def create_user():
     print('\033[4mEnter username (without ""), then press enter\033[0m:')
@@ -77,63 +86,6 @@ def get_users_by_type():
             print(f"{i+1}. {user.username}")
     else:
         print("No users found")
-
-def number_users():
-    print(f'Total number of users: {User.number_users()}')
-
-def number_users_by_type():
-    print('\033[4mEnter user type (without ""), then press enter\033[0m:')
-    user_type = input(">>> ")
-
-    if user_type != "personal" and user_type != "business":
-        raise ValueError("The user type must be either personal or business")
-    
-    print(f'Number of {user_type} users: {User.number_users_by_type(user_type)}')
-                    
-def create_file():
-    print('\033[4mEnter file name (without ""), then press enter\033[0m:')
-    file_name = input(">>> ")
-
-    print('\033[4mEnter file type (without ""), then press enter\033[0m:')
-    file_type = input(">>> ")
-
-    print('\033[4mEnter description (without ""), then press enter\033[0m:')
-    description = input(">>> ")
-
-    print('\033[4mEnter username (without ""), then press enter\033[0m:')
-    username = input(">>> ")
-
-    id = get_id_from_username(username)
-
-    File.create(file_name, file_type, description, id)
-
-    print("File created!")
-                
-def delete_file():
-    print('\033[4mEnter file name (without ""), then press enter\033[0m:')
-    file_name = input(">>> ")
-
-    print('\033[4mEnter username (without ""), then press enter\033[0m:')
-    username = input(">>> ")
-    user_id = get_id_from_username(username)
-
-    def select_by_file_name_and_username(file_name, user_id):
-        sql = """
-            SELECT *
-            FROM files
-            WHERE file_name = ? AND user_id = ?
-        """
-
-        row = CURSOR.execute(sql, (file_name, user_id)).fetchone()
-        instance = File.instance_from_db(row) if row else None
-        
-        if instance != None:
-            print("File deleted!")
-            instance.delete()
-        else:
-            print("No file found")
-
-    select_by_file_name_and_username(file_name, user_id)
                 
 def get_all_files():
     files = File.get_all()
@@ -142,7 +94,7 @@ def get_all_files():
         print("Files found!")
 
         for file in files:
-            print(f'{file.file_name}, {file.file_type}, {file.description}, {File.get_username_from_user_id(file.user_id)}')
+            print(f'{file.file_name}, {file.file_type}, {file.description}, {get_username_from_user_id(file.user_id)}')
 
     else:
         print("No files found")
@@ -160,23 +112,7 @@ def get_files_by_type():
         print("Files found!")
 
         for file in files:
-            print(f'{file.file_name}, {file.description}, {File.get_username_from_user_id(file.user_id)}')
-
-    else:
-        print("No files found")
-
-def get_files_by_user():
-    print('\033[4mEnter username (without ""), then press enter\033[0m:')
-    username = input(">>> ")
-
-    id = get_id_from_username(username)
-    files = File.files_by_user(id)
-
-    if files != []:
-        print("Files found!")
-
-        for file in files:
-            print(f'{file.file_name}, {file.file_type}, {file.description}')
+            print(f'{file.file_name}, {file.description}, {get_username_from_user_id(file.user_id)}')
 
     else:
         print("No files found")
@@ -203,52 +139,6 @@ def get_files_by_type_and_user():
     else:
         print("No files found")
                 
-def number_files():
-    print(f'Total number of files: {File.number_files()}')
-                
-def number_files_by_type():
-    print('\033[4mEnter file type (without ""), then press enter\033[0m:')
-    file_type = input(">>> ")
-
-    if file_type != ".doc" and file_type != ".xls" and file_type != ".ppt" and file_type != ".pdf":
-        raise ValueError("The file type must be either .doc, .xls, .ppt or .pdf")
-    
-    print(f'Number of {file_type} files: {File.number_files_by_type(file_type)}')
-                
-def number_files_by_user():
-    print('\033[4mEnter username (without ""), then press enter\033[0m:')
-    username = input(">>> ")
-
-    id = get_id_from_username(username)
-
-    print(f'Number of files for {username}: {File.number_files_by_user(id)}')
-                
-def number_files_by_type_and_user():
-    print('\033[4mEnter file type (without ""), then press enter\033[0m:')
-    file_type = input(">>> ")
-
-    print('\033[4mEnter username (without ""), then press enter\033[0m:')
-    username = input(">>> ")
-
-    id = get_id_from_username(username)
-
-    print(f'Number of {file_type} files for {username}: {File.number_files_by_type_and_user(file_type, id)}')
-                
-def search_files_by_name():
-    print('\033[4mEnter search term for file name (without ""), then press enter\033[0m:')
-    search_term = input(">>> ")
-
-    files = File.search_file_name(search_term)
-
-    if files != []:
-        print("Files found!")
-
-        for file in files:
-            print(f'{file.file_name}, {file.file_type}, {file.description}, {File.get_username_from_user_id(file.user_id)}')
-
-    else:
-        print("No files found")
-                
 def search_files_by_name_and_user():
     print('\033[4mEnter search term for file name (without ""), then press enter\033[0m:')
     search_term = input(">>> ")
@@ -267,26 +157,9 @@ def search_files_by_name_and_user():
 
     else:
         print("No files found")
-                
-def number_files_by_searched_name():
-    print('\033[4mEnter search term for file name (without ""), then press enter\033[0m:')
-    search_term = input(">>> ")
 
-    print(f'Total number of files: {File.count_searched_file_name(search_term)}')
-                
-def number_files_by_searched_name_and_user():
-    print('\033[4mEnter search term for file name (without ""), then press enter\033[0m:')
-    search_term = input(">>> ")
-
-    print('\033[4mEnter username (without ""), then press enter\033[0m:')
-    username = input(">>> ")
-
-    id = get_id_from_username(username)
-
-    print(f'Total number of files: {File.count_searched_file_name_and_user(search_term, id)}')
-
-
-# At user-level, for option 3 -------------------------------------------
+# ********* reference this as example
+# keep the object, don't convert back and forth between id and username
 
 def get_id_from_selected_user():
     print("\033[4mPlease select the number of the user, then press enter\033[0m:")
@@ -305,6 +178,8 @@ def delete_selected_user():
 
     all_users = User.get_all()
     selected_username = all_users[user_number-1].username
+
+# no SQL in helpers/ front end
 
     def select_by_username(selected_username):
         sql = """
@@ -375,11 +250,6 @@ def selected_user_see_files():
     else:
         print("No files found")
 
-def selected_user_count_files():
-    id = get_id_from_selected_user()
-
-    print(f'Number of files for {File.get_username_from_user_id(id)}: {File.number_files_by_user(id)}')
-
 def selected_user_search_files():
     id = get_id_from_selected_user()
 
@@ -396,11 +266,3 @@ def selected_user_search_files():
 
     else:
         print("No files found")
-
-def selected_user_count_searched_files():
-    id = get_id_from_selected_user()
-    
-    print('\033[4mEnter search term for file name (without ""), then press enter\033[0m:')
-    search_term = input(">>> ")
-
-    print(f'Total number of files: {File.count_searched_file_name_and_user(search_term, id)}')

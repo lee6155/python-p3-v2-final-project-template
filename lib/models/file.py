@@ -1,8 +1,6 @@
 from models.__init__ import CONN, CURSOR
 
-from models.user import (
-    User
-)
+from models.user import User
 
 class File:
     all = {}
@@ -13,18 +11,6 @@ class File:
         self.file_type = file_type
         self.description = description
         self.user_id = user_id
-        
-    def get_username_from_user_id(user_id):
-        sql = """
-            SELECT *
-            FROM users
-            WHERE id = ?
-        """
-
-        row = CURSOR.execute(sql, (user_id,)).fetchone()
-        user = User.instance_from_db(row)
-        username = user.username
-        return username
     
     @property
     def file_name(self):
@@ -187,30 +173,6 @@ class File:
         return user_files_by_type
 
     @classmethod
-    def number_files(cls):
-        files = File.get_all()
-        count = len(files)
-        return count
-    
-    @classmethod
-    def number_files_by_type(cls, file_type):
-        files = File.files_by_type(file_type)
-        count = len(files)
-        return count
-    
-    @classmethod
-    def number_files_by_user(cls, user_id):
-        files = File.files_by_user(user_id)
-        count = len(files)
-        return count
-
-    @classmethod
-    def number_files_by_type_and_user(cls, file_type, user_id):
-        files = File.files_by_type_and_user(file_type, user_id)
-        count = len(files)
-        return count
-
-    @classmethod
     def search_file_name(cls, search):
         sql = """
             SELECT *
@@ -227,15 +189,3 @@ class File:
 
         searched_by_both = [file for file in searched_file_names if file.user_id == id]
         return searched_by_both
-    
-    @classmethod
-    def count_searched_file_name(cls, search):
-        files = File.search_file_name(search)
-        count = len(files)
-        return count
-    
-    @classmethod
-    def count_searched_file_name_and_user(cls, search_term, id):
-        files = File.search_file_name_and_user(search_term, id)
-        count = len(files)
-        return count

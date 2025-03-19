@@ -132,15 +132,3 @@ class User:
 
         rows = CURSOR.execute(sql, (user_type,)).fetchall()
         return [cls.instance_from_db(row) for row in rows]
-
-    @classmethod
-    def number_users(cls):
-        users = User.get_all()
-        count = len(users)
-        return count
-
-    @classmethod
-    def number_users_by_type(cls, user_type):
-        users = User.users_by_type(user_type)
-        count = len(users)
-        return count
