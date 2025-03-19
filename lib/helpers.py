@@ -3,6 +3,9 @@ from models.__init__ import CONN, CURSOR
 from models.user import User
 from models.file import File
 
+
+# user and file-level helpers -------------------------------------------
+
 def get_id_from_username(username):
     sql = """
         SELECT id
@@ -110,14 +113,18 @@ def delete_file():
     print('\033[4mEnter file name (without ""), then press enter\033[0m:')
     file_name = input(">>> ")
 
-    def select_by_file_name(file_name):
+    print('\033[4mEnter username (without ""), then press enter\033[0m:')
+    username = input(">>> ")
+    user_id = get_id_from_username(username)
+
+    def select_by_file_name_and_username(file_name, user_id):
         sql = """
             SELECT *
             FROM files
-            WHERE file_name = ?
+            WHERE file_name = ? AND user_id = ?
         """
 
-        row = CURSOR.execute(sql, (file_name,)).fetchone()
+        row = CURSOR.execute(sql, (file_name, user_id)).fetchone()
         instance = File.instance_from_db(row) if row else None
         
         if instance != None:
@@ -126,9 +133,7 @@ def delete_file():
         else:
             print("No file found")
 
-    select_by_file_name(file_name)
-
-    print("File deleted!")
+    select_by_file_name_and_username(file_name, user_id)
                 
 def get_all_files():
     files = File.get_all()
@@ -279,3 +284,6 @@ def number_files_by_searched_name_and_user():
     id = get_id_from_username(username)
 
     print(f'Total number of files: {File.count_searched_file_name_and_user(search_term, id)}')
+
+
+# At user-level, for option 3 -------------------------------------------

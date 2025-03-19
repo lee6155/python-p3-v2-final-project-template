@@ -51,7 +51,7 @@ def main():
                 print("0. Go back to previous menu")
                 print("1. Create a user")
                 print("2. Delete a user")
-                print("3. See all users")
+                print("3. See all users (additional functions available if selected)")
                 print("4. See users by type")
                 print("5. Calculate total number of users")
                 print("6. Calculate number of users by type")
@@ -71,34 +71,159 @@ def main():
                 elif user_level_choice == "3":
                     get_all_users()
 
-                    level_three_menu = "1"
-                    while level_three_menu == "1":
+                    level_three_menu = "3"
+                    while level_three_menu == "3":
                         print("\033[4mPlease select an option\033[0m:")
                         print("0. Go back to previous menu")
-                        print("1. See files by user")
+                        print("1. Delete a user")
+                        print("2. Create a file for a user")
+                        print("3. Delete a file for a user")
+                        print("4. See files by user")
+                        print("5. Calculate number of files by user")
+                        print("6. For user, search files by file name")
+                        print("7. For user, calculate number of matches when searching by file name")
                         level_three_choice = input(">>> ")
 
                         if level_three_choice  == "0":
                             level_three_menu = ""
 
-                        if level_three_choice == "1":
-                            print("\033[4mPlease select the number of the user\033[0m:")
+                        def get_id_from_selected_user():
+                            print("\033[4mPlease select the number of the user, then press enter\033[0m:")
                             user_string = input(">>> ")
                             user_number = int(user_string)
 
                             all_users = User.get_all()
                             selected_username = all_users[user_number-1].username
                             id = get_id_from_username(selected_username)
-                            files = File.files_by_user(id)
+                            return id
 
-                            if files != []:
-                                print("Files found!")
+                        if level_three_choice == "1":
+                            def delete_selected_user():
+                                print("\033[4mPlease select the number of the user, then press enter\033[0m:")
+                                user_string = input(">>> ")
+                                user_number = int(user_string)
 
-                                for file in files:
-                                    print(f'{file.file_name}, {file.file_type}, {file.description}')
+                                all_users = User.get_all()
+                                selected_username = all_users[user_number-1].username
 
-                            else:
-                                print("No files found")
+                                def select_by_username(selected_username):
+                                    sql = """
+                                        SELECT *
+                                        FROM users
+                                        WHERE username = ?
+                                    """
+
+                                    row = CURSOR.execute(sql, (selected_username,)).fetchone()
+                                    instance = User.instance_from_db(row) if row else None
+                                    instance.delete()
+
+                                    print("User deleted!")
+
+                                select_by_username(selected_username)
+                                
+                            delete_selected_user()
+
+                        if level_three_choice == "2":
+                            def selected_user_create_file():
+                                id = get_id_from_selected_user()
+
+                                print('\033[4mEnter file name (without ""), then press enter\033[0m:')
+                                file_name = input(">>> ")
+
+                                print('\033[4mEnter file type (without ""), then press enter\033[0m:')
+                                file_type = input(">>> ")
+
+                                print('\033[4mEnter description (without ""), then press enter\033[0m:')
+                                description = input(">>> ")
+                                
+                                File.create(file_name, file_type, description, id)
+
+                                print("File created!")
+
+                            selected_user_create_file()
+                            
+                        if level_three_choice == "3":
+                            def selected_user_delete_file():
+                                id = get_id_from_selected_user()
+                                
+                                print('\033[4mEnter file name (without ""), then press enter\033[0m:')
+                                file_name = input(">>> ")
+
+                                def select_by_file_name_and_username(file_name, id):
+                                    sql = """
+                                        SELECT *
+                                        FROM files
+                                        WHERE file_name = ? AND user_id = ?
+                                    """
+
+                                    row = CURSOR.execute(sql, (file_name, id)).fetchone()
+                                    instance = File.instance_from_db(row) if row else None
+                                    
+                                    if instance != None:
+                                        print("File deleted!")
+                                        instance.delete()
+                                    else:
+                                        print("No file found")
+
+                                select_by_file_name_and_username(file_name, id)
+
+                            selected_user_delete_file()
+
+                        if level_three_choice == "4":
+                            def selected_user_see_files():
+                                id = get_id_from_selected_user()
+                                
+                                files = File.files_by_user(id)
+
+                                if files != []:
+                                    print("Files found!")
+
+                                    for file in files:
+                                        print(f'{file.file_name}, {file.file_type}, {file.description}')
+
+                                else:
+                                    print("No files found")
+                            
+                            selected_user_see_files()
+
+                        if level_three_choice == "5":
+                            def selected_user_count_files():
+                                id = get_id_from_selected_user()
+
+                                print(f'Number of files for {File.get_username_from_user_id(id)}: {File.number_files_by_user(id)}')
+                            
+                            selected_user_count_files()
+                        
+                        if level_three_choice == "6":
+                            def selected_user_search_files():
+                                id = get_id_from_selected_user()
+
+                                print('\033[4mEnter search term for file name (without ""), then press enter\033[0m:')
+                                search_term = input(">>> ")
+
+                                files = File.search_file_name_and_user(search_term, id)
+
+                                if files != []:
+                                    print("Files found!")
+
+                                    for file in files:
+                                        print(f'{file.file_name}, {file.file_type}, {file.description}')
+
+                                else:
+                                    print("No files found")
+
+                            selected_user_search_files()
+                        
+                        if level_three_choice == "7":
+                            def selected_user_count_searched_files():
+                                id = get_id_from_selected_user()
+                                
+                                print('\033[4mEnter search term for file name (without ""), then press enter\033[0m:')
+                                search_term = input(">>> ")
+
+                                print(f'Total number of files: {File.count_searched_file_name_and_user(search_term, id)}')
+
+                            selected_user_count_searched_files()
 
                 elif user_level_choice == "4":
                     get_users_by_type()
