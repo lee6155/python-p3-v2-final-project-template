@@ -132,3 +132,15 @@ class User:
 
         rows = CURSOR.execute(sql, (user_type,)).fetchall()
         return [cls.instance_from_db(row) for row in rows]
+
+    @classmethod
+    def select_by_username(cls, username):
+        sql = """
+            SELECT *
+            FROM users
+            WHERE username = ?
+        """
+
+        row = CURSOR.execute(sql, (username,)).fetchone()
+        instance = User.instance_from_db(row) if row else None
+        return instance

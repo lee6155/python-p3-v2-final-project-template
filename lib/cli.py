@@ -7,7 +7,6 @@ import fire
 
 from helpers import (
     create_user,
-    delete_user,
     get_all_users,
     get_users_by_type,
     get_all_files,
@@ -42,9 +41,8 @@ def main():
                 print("\033[4mPlease select an option\033[0m:")
                 print("0. Go back to previous menu")
                 print("1. Create a user")
-                print("2. Delete a user")
-                print("3. See all users (additional functions available if selected)")
-                print("4. See users by type")
+                print("2. See all users (additional functions available if selected)")
+                print("3. See users by type")
                 user_level_choice = input(">>> ")
 
                 User.create_table()
@@ -56,9 +54,6 @@ def main():
                     create_user()
 
                 elif user_level_choice == "2":
-                    delete_user()
-
-                elif user_level_choice == "3":
                     get_all_users()
 
                     level_three_menu = "3"
@@ -93,7 +88,7 @@ def main():
                         else:              
                             print("Invalid choice")
 
-                elif user_level_choice == "4":
+                elif user_level_choice == "3":
                     get_users_by_type()
                         
                 else:              
